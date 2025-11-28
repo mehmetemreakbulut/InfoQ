@@ -1,0 +1,20 @@
+activation_bit: 8 
+cifar_subset_size: 5000
+dataset: cifar10
+model_name: resnet20
+num_calibration_batches: 5
+num_samples_per_class: 30
+num_target_classes: 10
+per_channel: False
+smi_m: 100
+target_modules:
+- layer1_0_relu_1_post_act_fake_quantizer
+- layer1_1_relu_1_post_act_fake_quantizer
+- layer1_2_relu_1_post_act_fake_quantizer
+- layer2_0_relu_1_post_act_fake_quantizer
+- layer2_1_relu_1_post_act_fake_quantizer
+- layer2_2_relu_1_post_act_fake_quantizer
+- layer3_0_relu_1_post_act_fake_quantizer
+- layer3_1_relu_1_post_act_fake_quantizer
+- avgpool
+- fc

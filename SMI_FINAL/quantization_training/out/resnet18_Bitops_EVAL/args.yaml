@@ -1,0 +1,109 @@
+act_bits:
+- 5
+- 3
+- 3
+- 3
+- 3
+- 3
+- 4
+- 3
+- 3
+- 4
+- 2
+- 4
+- 3
+- 3
+- 3
+- 3
+- 4
+- 4
+- 5
+arch: resnet18
+cooldown_epochs: 100
+dataloader:
+  batch_size: 128
+  dataset: imagenet
+  deterministic: true
+  num_classes: 1000
+  path: /path/to/imagenet
+  serialized: false
+  val_split: 0.02
+  workers: 16
+decay_epochs: 30
+decay_rate: 0.1
+epochs: 240
+eval: true
+fp_model: false
+freeze_weights: false
+gpu: a100_40g
+local_rank: 0
+log:
+  num_best_scores: 3
+  print_freq: 5
+lr: 0.001
+min_lr: 1.0e-07
+momentum: 0.9
+name: resnet18_test
+opt: sgd
+output_dir: out
+pre_trained: true
+quan:
+  act:
+    all_positive: true
+    bit: 2
+    mode: lsq
+    per_channel: false
+    symmetric: false
+  excepts:
+    bn1:
+      act:
+        bit: null
+      weight:
+        bit: null
+    conv1:
+      act:
+        all_positive: false
+        bit: null
+      weight:
+        bit: null
+    fc:
+      act:
+        bit: null
+      weight:
+        bit: null
+  weight:
+    all_positive: false
+    bit: 2
+    mode: lsq
+    per_channel: false
+    symmetric: false
+resume:
+  lean: false
+  path: out/resnet18_test_20250729-163740/resnet18_test_best.pth.tar
+sched: cosine
+smoothing: 0.1
+training_device: gpu
+val_cycle: 1
+warmup_epochs: 5
+warmup_lr: 1.0e-05
+weight_bits:
+- 3
+- 3
+- 3
+- 2
+- 3
+- 3
+- 4
+- 3
+- 2
+- 3
+- 3
+- 2
+- 3
+- 2
+- 3
+- 3
+- 2
+- 3
+- 2
+weight_decay: 2.5e-05

@@ -1,0 +1,62 @@
+# Configuration for the SMI Calculation Script
+
+# Required parameters
+model_name: 'resnet50_gluon'
+dataset: 'imagenet_256x256'
+bitwidths:
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+
+# Optional parameters with default values in the script
+# You can uncomment and change these as needed.
+num_target_classes: 20
+num_samples_per_class: 300
+
+# Optional parameter, can be omitted or set to null (or None in Python)
+# Set a value if you want to use a subset of the CIFAR training data.
+cifar_subset_size: 5000
+
+target_modules:
+- 'layer1_0_act3_post_act_fake_quantizer'
+- 'layer1_1_act3_post_act_fake_quantizer'
+- 'layer1_2_act3_post_act_fake_quantizer'
+- 'layer2_0_act3_post_act_fake_quantizer'
+- 'layer2_1_act3_post_act_fake_quantizer'
+- 'layer2_2_act3_post_act_fake_quantizer'
+- 'layer2_3_act3_post_act_fake_quantizer'
+- 'layer3_0_act3_post_act_fake_quantizer'
+- 'layer3_1_act3_post_act_fake_quantizer'
+- 'layer3_2_act3_post_act_fake_quantizer'
+- 'layer3_3_act3_post_act_fake_quantizer'
+- 'layer3_4_act3_post_act_fake_quantizer'
+- 'layer3_5_act3_post_act_fake_quantizer'
+- 'layer4_0_act3_post_act_fake_quantizer'
+- 'layer4_1_act3_post_act_fake_quantizer'
+- 'global_pool_flatten_post_act_fake_quantizer'
+- 'fc'
+
+XL_OBSERVERS:
+- 'layer1_1_act3_post_act_fake_quantizer'
+- 'layer1_2_act3_post_act_fake_quantizer'
+- 'layer2_0_act3_post_act_fake_quantizer'
+- 'layer2_1_act3_post_act_fake_quantizer'
+- 'layer2_2_act3_post_act_fake_quantizer'
+- 'layer2_3_act3_post_act_fake_quantizer'
+YL_OBSERVERS:
+- 'layer4_0_act3_post_act_fake_quantizer'
+- 'layer4_1_act3_post_act_fake_quantizer'
+- 'global_pool_flatten_post_act_fake_quantizer'
+- 'fc'
+
+
+
+num_calibration_batches: 1
+per_channel: False
+activation_bit: 8 
+
+
+
+smi_m: 100

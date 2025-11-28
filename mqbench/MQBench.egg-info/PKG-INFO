@@ -1,0 +1,25 @@
+Metadata-Version: 2.4
+Name: MQBench
+Version: 0.0.6
+Summary: Quantization aware training.
+Author: The Great Cold
+Author-email: 
+Classifier: Development Status :: 3 - Alpha
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: POSIX :: Linux
+Requires-Python: >=3.10
+License-File: LICENSE
+Requires-Dist: torch
+Requires-Dist: torchvision
+Requires-Dist: numpy
+Requires-Dist: protobuf
+Requires-Dist: prettytable
+Requires-Dist: onnx
+Requires-Dist: onnxsim
+Requires-Dist: onnxruntime
+Dynamic: author
+Dynamic: classifier
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

@@ -1,0 +1,9 @@
+timm
+transformers
+seaborn
+scikit-learn
+matplotlib
+tensorboard
+munch
+cvxpy
+PuLP

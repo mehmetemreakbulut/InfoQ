@@ -1,0 +1,66 @@
+# Configuration for the SMI Calculation Script
+
+# Required parameters
+model_name: 'mobilenetv2'
+dataset: 'imagenet_256x256'
+
+# Optional parameters with default values in the script
+# You can uncomment and change these as needed.
+num_target_classes: 80
+num_samples_per_class: 60
+
+# Optional parameter, can be omitted or set to null (or None in Python)
+# Set a value if you want to use a subset of the CIFAR training data.
+cifar_subset_size: 5000
+
+target_modules:
+ -    'features_2_conv_7_post_act_fake_quantizer'
+ -    'add_post_act_fake_quantizer'
+ -    'features_4_conv_7_post_act_fake_quantizer'
+ -    'add_1_post_act_fake_quantizer'
+ -    'add_2_post_act_fake_quantizer'
+ -    'features_7_conv_7_post_act_fake_quantizer'
+ -    'add_3_post_act_fake_quantizer'
+ -    'add_4_post_act_fake_quantizer'
+ -    'add_5_post_act_fake_quantizer'
+ -    'features_11_conv_7_post_act_fake_quantizer'
+ -    'add_6_post_act_fake_quantizer'
+ -    'add_7_post_act_fake_quantizer'
+ -    'features_14_conv_7_post_act_fake_quantizer'
+ -    'add_8_post_act_fake_quantizer'
+ -    'add_9_post_act_fake_quantizer'
+ -    'features_17_conv_7_post_act_fake_quantizer'
+ -    'avgpool'
+ -    'view_post_act_fake_quantizer'
+ -    'classifier'
+ 
+XL_OBSERVERS:
+ -    'add_post_act_fake_quantizer'
+ -    'features_4_conv_7_post_act_fake_quantizer'
+ -    'add_1_post_act_fake_quantizer'
+ -    'add_2_post_act_fake_quantizer'
+ -    'features_7_conv_7_post_act_fake_quantizer'
+ -    'add_3_post_act_fake_quantizer'
+ -    'add_4_post_act_fake_quantizer'
+ -    'add_5_post_act_fake_quantizer'
+ -    'features_11_conv_7_post_act_fake_quantizer'
+ -    'add_6_post_act_fake_quantizer'
+ -    'add_7_post_act_fake_quantizer'
+ -    'features_14_conv_7_post_act_fake_quantizer'
+ -    'add_8_post_act_fake_quantizer'
+ -    'add_9_post_act_fake_quantizer'
+ -    'features_17_conv_7_post_act_fake_quantizer'
+
+YL_OBSERVERS:
+ -    'avgpool'
+ -    'view_post_act_fake_quantizer'
+ -    'classifier'
+
+
+num_calibration_batches: 5
+per_channel: False
+activation_bit: 8 
+
+
+
+smi_m: 100

@@ -1,0 +1,175 @@
+act_bits:
+- 6
+- 4
+- 5
+- 6
+- 6
+- 4
+- 4
+- 5
+- 3
+- 4
+- 4
+- 4
+- 6
+- 4
+- 3
+- 4
+- 4
+- 4
+- 5
+- 4
+- 4
+- 2
+- 3
+- 3
+- 4
+- 5
+- 5
+- 6
+- 2
+- 5
+- 4
+- 3
+- 3
+- 4
+- 5
+- 5
+- 5
+- 4
+- 5
+- 5
+- 4
+- 4
+- 6
+- 3
+- 4
+- 4
+- 5
+- 5
+- 6
+- 6
+- 6
+- 5
+arch: resnet50
+cooldown_epochs: 5
+dataloader:
+  batch_size: 64
+  dataset: imagenet
+  deterministic: true
+  num_classes: 1000
+  path: /path/to/imagenet
+  serialized: false
+  val_split: 0.02
+  workers: 16
+decay_epochs: 30
+decay_rate: 0.1
+epochs: 150
+eval: true
+fp_model: false
+freeze_weights: false
+gpu: a100_40g
+local_rank: 0
+log:
+  num_best_scores: 3
+  print_freq: 5
+lr: 0.02
+min_lr: 1.0e-05
+momentum: 0.9
+name: resnet50_test
+opt: sgd
+output_dir: out
+pre_trained: true
+quan:
+  act:
+    all_positive: true
+    bit: 2
+    mode: lsq
+    per_channel: false
+    symmetric: false
+  excepts:
+    bn1:
+      act:
+        bit: null
+      weight:
+        bit: null
+    conv1:
+      act:
+        all_positive: false
+        bit: null
+      weight:
+        bit: null
+    fc:
+      act:
+        bit: null
+      weight:
+        bit: null
+  weight:
+    all_positive: false
+    bit: 2
+    mode: lsq
+    per_channel: false
+    symmetric: false
+resume:
+  lean: false
+  path: out/resnet50_test_20250709-010416/resnet50_test_best.pth.tar
+sched: cosine
+smoothing: 0.1
+training_device: gpu
+val_cycle: 1
+warmup_epochs: 5
+warmup_lr: 1.0e-05
+weight_bits:
+- 6
+- 5
+- 5
+- 6
+- 3
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 3
+- 4
+- 3
+- 4
+- 4
+- 3
+- 3
+- 3
+- 3
+- 4
+- 3
+- 3
+- 3
+- 2
+- 3
+- 2
+- 3
+- 2
+- 2
+- 3
+- 2
+- 2
+- 3
+- 2
+- 2
+- 3
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+weight_decay: 2.5e-05

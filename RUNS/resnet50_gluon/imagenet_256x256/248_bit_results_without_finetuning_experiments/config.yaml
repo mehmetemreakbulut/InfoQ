@@ -1,0 +1,30 @@
+activation_bit: 8
+bitwidths:
+- 2
+- 4
+cifar_subset_size: 5000
+dataset: imagenet_256x256
+model_name: resnet50_gluon
+num_calibration_batches: 16
+num_samples_per_class: 300
+num_target_classes: 20
+per_channel: false
+smi_m: 100
+target_modules:
+- layer1_0_act3_post_act_fake_quantizer
+- layer1_1_act3_post_act_fake_quantizer
+- layer1_2_act3_post_act_fake_quantizer
+- layer2_0_act3_post_act_fake_quantizer
+- layer2_1_act3_post_act_fake_quantizer
+- layer2_2_act3_post_act_fake_quantizer
+- layer2_3_act3_post_act_fake_quantizer
+- layer3_0_act3_post_act_fake_quantizer
+- layer3_1_act3_post_act_fake_quantizer
+- layer3_2_act3_post_act_fake_quantizer
+- layer3_3_act3_post_act_fake_quantizer
+- layer3_4_act3_post_act_fake_quantizer
+- layer3_5_act3_post_act_fake_quantizer
+- layer4_0_act3_post_act_fake_quantizer
+- layer4_1_act3_post_act_fake_quantizer
+- global_pool_flatten_post_act_fake_quantizer
+- fc

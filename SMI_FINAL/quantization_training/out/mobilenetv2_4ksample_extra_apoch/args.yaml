@@ -1,0 +1,184 @@
+act_bits:
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+- 8
+arch: mobilenetv2
+cooldown_epochs: 50
+dataloader:
+  batch_size: 64
+  dataset: imagenet
+  deterministic: true
+  num_classes: 1000
+  path: /path/to/imagenet
+  serialized: false
+  val_split: 0.02
+  workers: 16
+decay_epochs: 30
+decay_rate: 0.1
+epochs: 150
+eval: false
+fp_model: false
+freeze_weights: false
+gpu: a100_40g
+local_rank: 0
+log:
+  num_best_scores: 3
+  print_freq: 5
+lr: 0.02
+min_lr: 1.0e-06
+momentum: 0.9
+name: mobilenetv2_finetune
+opt: sgd
+output_dir: out
+pre_trained: true
+quan:
+  act:
+    all_positive: true
+    bit: 2
+    mode: lsq
+    per_channel: false
+    symmetric: false
+  excepts:
+    bn1:
+      act:
+        bit: null
+      weight:
+        bit: null
+    classifier.1:
+      act:
+        bit: null
+      weight:
+        bit: null
+    conv1:
+      act:
+        all_positive: false
+        bit: null
+      weight:
+        bit: null
+    fc:
+      act:
+        bit: null
+      weight:
+        bit: null
+    features.0.0:
+      act:
+        all_positive: false
+        bit: null
+      weight:
+        bit: null
+  weight:
+    all_positive: false
+    bit: 2
+    mode: lsq
+    per_channel: false
+    symmetric: false
+resume:
+  lean: false
+  path: out/mobilenetv2_finetune_20250715-134003/mobilenetv2_finetune_best.pth.tar
+sched: cosine
+smoothing: 0.1
+training_device: gpu
+val_cycle: 1
+warmup_epochs: 5
+warmup_lr: 1.0e-05
+weight_bits:
+- 8
+- 8
+- 8
+- 8
+- 8
+- 3
+- 8
+- 5
+- 5
+- 8
+- 5
+- 3
+- 8
+- 4
+- 3
+- 8
+- 4
+- 4
+- 8
+- 5
+- 2
+- 5
+- 3
+- 2
+- 4
+- 3
+- 2
+- 4
+- 3
+- 3
+- 4
+- 4
+- 2
+- 4
+- 3
+- 2
+- 4
+- 3
+- 2
+- 3
+- 3
+- 2
+- 5
+- 3
+- 2
+- 4
+- 3
+- 2
+- 2
+- 2
+- 2
+weight_decay: 2.5e-05

@@ -1,0 +1,8 @@
+torch
+torchvision
+numpy
+protobuf
+prettytable
+onnx
+onnxsim
+onnxruntime
