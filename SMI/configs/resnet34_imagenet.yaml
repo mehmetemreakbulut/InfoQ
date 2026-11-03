@@ -48,3 +48,7 @@ activation_bit: 8
 
 
 smi_m: 100
+
+# Paper pipeline (pre-calculated values in RUNS). Remove this line to apply the MI(X,L) fixes.
+reproduce: true
+

@@ -676,10 +676,11 @@ import math
 # correctly as in your provided code above this point.
 # ==============================================================================
 
-def generate_random_subspace_basis(d, k_slice_dim, dtype=DEFAULT_FLOAT):
+def generate_random_subspace_basis(d, k_slice_dim, dtype=DEFAULT_FLOAT, rng=None):
     """
     Generates an orthonormal basis for a random k-subspace in d dimensions.
     Uses QR decomposition of Gaussian vectors.
+    rng: optional cp.random.RandomState; the global cp.random is used if None.
     """
     if not isinstance(k_slice_dim, int) or k_slice_dim <= 0:
          raise ValueError("k_slice_dim must be a positive integer.")
@@ -689,7 +690,7 @@ def generate_random_subspace_basis(d, k_slice_dim, dtype=DEFAULT_FLOAT):
         return cp.eye(d, dtype=dtype)
 
     # Generate k_slice_dim random vectors in d dimensions
-    random_vectors = cp.random.randn(d, k_slice_dim, dtype=dtype)
+    random_vectors = (rng if rng is not None else cp.random).randn(d, k_slice_dim, dtype=dtype)
     # Orthonormalize using QR decomposition
     basis, _ = la.qr(random_vectors, mode='reduced') # Shape (d, k_slice_dim)
     return basis
@@ -697,7 +698,7 @@ def generate_random_subspace_basis(d, k_slice_dim, dtype=DEFAULT_FLOAT):
 
 def compute_ksmi_optimized_parallel(x, y, k_slice_dim=5, m=500, method='ksg', number_of_class=80,
                                   discrete=True, k_nn=3, base=2,
-                                   num_streams=100): 
+                                   num_streams=100, slice_y=False, seed=None): 
     """
     Optimized k-SMI estimator using CUDA streams for parallel MI calculation.
     Precomputes all projections, then launches MI computations concurrently.
@@ -713,6 +714,9 @@ def compute_ksmi_optimized_parallel(x, y, k_slice_dim=5, m=500, method='ksg', nu
         base (int): Base for the logarithm in MI calculation.
         num_streams (int): Number of CUDA streams to use for parallel execution.
                            Adjust based on GPU memory and workload.
+        slice_y (bool): Continuous y only. Also project y onto a random k-subspace per slice
+                        (slice i pairs the i-th x basis with the i-th y basis); otherwise y is used unprojected.
+        seed (int, optional): Seed for the random bases, so repeated calls use the same slices.
 
     Returns:
         float: Estimated k-Sliced Mutual Information (k-SMI).
@@ -755,8 +759,9 @@ def compute_ksmi_optimized_parallel(x, y, k_slice_dim=5, m=500, method='ksg', nu
     # --- OPTIMIZATION: Precompute all bases and projections ---
     try:
         print("Precomputing projections...")
+        rng = cp.random.RandomState(seed) if seed is not None else None
         # 1. Generate all bases and stack horizontally
-        all_bases_list = [generate_random_subspace_basis(n_features_x, k_slice_dim, dtype=DEFAULT_FLOAT) for _ in range(m)]
+        all_bases_list = [generate_random_subspace_basis(n_features_x, k_slice_dim, dtype=DEFAULT_FLOAT, rng=rng) for _ in range(m)]
         all_bases = cp.hstack(all_bases_list) # Shape: (n_features_x, k_slice_dim * m)
         del all_bases_list
 
@@ -765,6 +770,17 @@ def compute_ksmi_optimized_parallel(x, y, k_slice_dim=5, m=500, method='ksg', nu
         x_proj_batch = cp.dot(x, all_bases)
 
         del all_bases
+
+        # Same for y: slice i uses the i-th y basis together with the i-th x basis
+        y_proj_batch = None
+        if slice_y and not discrete:
+            n_features_y = y.shape[1]
+            if not (1 <= k_slice_dim <= n_features_y):
+                raise ValueError(f"k_slice_dim ({k_slice_dim}) must be between 1 and n_features_y ({n_features_y}).")
+            all_bases_y = cp.hstack([generate_random_subspace_basis(n_features_y, k_slice_dim, dtype=DEFAULT_FLOAT, rng=rng) for _ in range(m)])
+            y_proj_batch = cp.dot(y, all_bases_y)
+            del all_bases_y
+
         cp.get_default_memory_pool().free_all_blocks()
         print("Projections computed.")
 
@@ -807,7 +823,8 @@ def compute_ksmi_optimized_parallel(x, y, k_slice_dim=5, m=500, method='ksg', nu
               micd_end = time.time()
               #print(f"MICD took: {micd_end - micd_start:.4f} seconds")
           else:
-              mi_result = mi(x_proj_i, y, k=k_nn, base=base)
+              y_i = y if y_proj_batch is None else cp.ascontiguousarray(y_proj_batch[:, start_col:end_col])
+              mi_result = mi(x_proj_i, y_i, k=k_nn, base=base)
       
 
           # Append the CuPy scalar (representing the future result)

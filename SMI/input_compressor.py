@@ -1,4 +1,5 @@
 from PIL import Image
+import numpy as np
 import requests
 from transformers import AutoImageProcessor, AutoModel
 import torch
@@ -43,11 +44,25 @@ def dinov2_model():
 
     return processor, model
 
-def imagenet_embeddings(processor, model, ds):
+def check_dinov2_inputs(processor, ds, processor_kwargs, num_images=64):
+    """Fails if the processed DINOv2 inputs are not ImageNet-normalized (e.g. rescaled by 1/255 twice)."""
+    images = [ds[i][image_column] for i in range(min(num_images, len(ds)))]
+    pixel_values = processor(images=images, return_tensors="pt", **processor_kwargs)['pixel_values']
+    pmin, pmax, pstd = pixel_values.min().item(), pixel_values.max().item(), pixel_values.std().item()
+    print(f"DINOv2 input check on {len(images)} images: min={pmin:.3f} max={pmax:.3f} std={pstd:.3f}")
+    assert pstd > 0.5 and pmax > 1.0, "DINOv2 inputs are not normalized once with ImageNet mean/std"
+
+
+def imagenet_embeddings(processor, model, ds, fix_preprocessing=False):
     image_column = 'image'
     label_column = 'label'
     X_compressed = []
     model.to(device)
+    # ds already yields 224x224 center crops scaled to [0, 1] (ToTensor): only normalize here.
+    # fix_preprocessing=False keeps the original behaviour (processor rescales by 1/255 again, resizes and crops).
+    processor_kwargs = dict(do_rescale=False, do_resize=False, do_center_crop=False) if fix_preprocessing else {}
+    if fix_preprocessing:
+        check_dinov2_inputs(processor, ds, processor_kwargs)
     with torch.no_grad():
       i = 0
       for i, batch in tqdm(enumerate(ds), desc="Running Inference"):
@@ -56,7 +71,7 @@ def imagenet_embeddings(processor, model, ds):
           image = batch[image_column]
 
 
-          inputs = processor(images=image, return_tensors="pt").to(device)
+          inputs = processor(images=image, return_tensors="pt", **processor_kwargs).to(device)
           #latent_sample = model.get_image_features(**inputs) # Shape: [1, 512]
           latent_sample = model(**inputs) # Shape: [1, 512]
 
@@ -67,6 +82,8 @@ def imagenet_embeddings(processor, model, ds):
           #scaling_factor = vae.config.scaling_factor
           #latents_for_decoder = latent_sample / scaling_factor
           #decoded_output = vae_dc.decode(latent_dist)
+    spread = np.asarray(X_compressed).std(axis=0).mean()
+    print(f"X embeddings: {len(X_compressed)} samples, mean per-dimension std across samples = {spread:.4f}")
     return X_compressed
 
 
@@ -97,7 +114,7 @@ def input_embeddings_cifar10(loader):
 from SMI.vae import load_model_with_fc
 from torchvision import transforms
 from torch.utils.data import DataLoader
-def imagenet_256x256_X(ds):
+def imagenet_256x256_X(ds, fix_preprocessing=False):
     '''
     print("Loading VAE model with FC layer...")
     vae = load_model_with_fc()
@@ -128,7 +145,7 @@ def imagenet_256x256_X(ds):
     return X_compressed
     '''
     processor, model = dinov2_model()
-    return imagenet_embeddings(processor, model, ds)
+    return imagenet_embeddings(processor, model, ds, fix_preprocessing=fix_preprocessing)
     
 def get_X(dataset, loader):
     if dataset == 'imagenet_256x256':

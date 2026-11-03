@@ -43,3 +43,7 @@ num_target_classes: 10 # You can change this number for longer experiments, num_
 num_samples_per_class: 100 # num_samples_per_class = 60
 
 smi_m: 100
+
+# Paper pipeline (pre-calculated values in RUNS). Remove this line to apply the MI(X,L) fixes.
+reproduce: true
+

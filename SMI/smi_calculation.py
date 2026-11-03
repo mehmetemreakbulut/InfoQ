@@ -72,6 +72,9 @@ def main(config):
     
     print(f"Model Name: {config['model_name']}")
     print(f"Dataset: {config['dataset']}")
+    # reproduce: true runs the paper's MI(X,L) pipeline; by default (key absent) the MI(X,L) fixes are applied
+    fix_mi = not config.get('reproduce', False)
+    print(f"reproduce={not fix_mi}")
 
     model = create_model(config['model_name'], config['dataset'])
     # print model to model_name.txt file
@@ -91,7 +94,7 @@ def main(config):
 
     if config['dataset'] == 'imagenet_256x256':
         ds = load_imagenet_256x256_ds(int(config['num_target_classes']), int(config['num_samples_per_class']))
-        X_compressed = np.array(imagenet_256x256_X(ds))
+        X_compressed = np.array(imagenet_256x256_X(ds, fix_preprocessing=fix_mi))
     else:
         X_compressed = np.array(get_X(config['dataset'], train_dataloader))
     
@@ -138,6 +141,13 @@ def main(config):
     records = []
     XL_OBSERVERS = config.get('XL_OBSERVERS', [])
     YL_OBSERVERS = config.get('YL_OBSERVERS', [])
+    # 'all' observes every module in target_modules
+    if XL_OBSERVERS == 'all':
+        XL_OBSERVERS = list(target_modules)
+    if YL_OBSERVERS == 'all':
+        YL_OBSERVERS = list(target_modules)
+    print(f"XL_OBSERVERS: {XL_OBSERVERS}")
+    print(f"YL_OBSERVERS: {YL_OBSERVERS}")
     for bw in BWS:
         for layer, quant in quant_dict_base.items():
             copy_quant_dict = quant_dict_base.copy()
@@ -164,6 +174,8 @@ def main(config):
                 layer_needed=layer_needed,
                 XL_OBSERVERS=XL_OBSERVERS,
                 YL_OBSERVERS=YL_OBSERVERS,
+                slice_x_input=fix_mi,
+                fixed_projections=fix_mi,
             )
             records.append({
                 'layer': layer,
@@ -191,6 +203,8 @@ def main(config):
         target_modules=target_modules,
         XL_OBSERVERS=XL_OBSERVERS,
         YL_OBSERVERS=YL_OBSERVERS,
+        slice_x_input=fix_mi,
+        fixed_projections=fix_mi,
         layer_needed=None,  # Process all layers
     )
     records.append({

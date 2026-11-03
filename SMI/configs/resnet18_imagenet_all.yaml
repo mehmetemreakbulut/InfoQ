@@ -1,0 +1,41 @@
+# Configuration for the SMI Calculation Script
+
+# Required parameters
+model_name: 'resnet18_gluon'
+dataset: 'imagenet_256x256'
+
+#no needed, just a placeholder for not reported cifar experiments
+cifar_subset_size: 5000
+
+
+bitwidths:
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7 
+#8 is included in the code
+
+target_modules:
+- 'layer1_0_act2_post_act_fake_quantizer' 
+- 'layer1_1_act2_post_act_fake_quantizer'
+- 'layer2_0_act2_post_act_fake_quantizer' 
+- 'layer2_1_act2_post_act_fake_quantizer'
+- 'layer3_0_act2_post_act_fake_quantizer'
+- 'layer3_1_act2_post_act_fake_quantizer'
+- 'layer4_0_act2_post_act_fake_quantizer' 
+- 'global_pool_flatten_post_act_fake_quantizer'
+- 'fc'
+
+# 'all': MI(X,L) and MI(L,Y) are measured at every module in target_modules (slower)
+XL_OBSERVERS: all
+YL_OBSERVERS: all
+
+num_calibration_batches: 1
+per_channel: False
+activation_bit: 8 
+num_target_classes: 10 # You can change this number for longer experiments, num_target_classes = 80 
+num_samples_per_class: 100 # num_samples_per_class = 60
+
+smi_m: 100

@@ -3,6 +3,7 @@ import torch.nn as nn
 from collections import defaultdict
 import numpy as np
 import gc # Garbage Collector
+import zlib
 import os # Still needed for os.path stuff if helper functions used it before, but not for saving
 
 from SMI.utils.basic_functions import compute_ksmi_optimized_parallel
@@ -73,6 +74,8 @@ def calculate_smi(
     # label_column='label' # Not strictly needed if targets are pre-provided
     XL_OBSERVERS = [],
     YL_OBSERVERS = [],
+    slice_x_input = False, # MI(X,L): also slice the input embedding X (not only L)
+    fixed_projections = False, # same random slices per layer in every call (8-bit baseline and quantized models)
 ):
     """
     Calculates SMI by processing one layer at a time to conserve memory.
@@ -88,6 +91,9 @@ def calculate_smi(
         target_modules (list): List of layer names (str) to extract activations from.
         layer_needed (str, optional): If set, only calculates MI for this specific layer.
         image_column (str): Dictionary key for images in the dataloader batch.
+        slice_x_input (bool): Project X onto random k-subspaces too in MI(X,L).
+        fixed_projections (bool): Seed the random slices per layer (stable across processes),
+            so the 8-bit baseline and all quantized models are measured with the same slices.
 
     Returns:
         dict: Dictionary mapping layer names to (MI(X,L), MI(L,Y)) tuples.
@@ -272,7 +278,9 @@ def calculate_smi(
                     L_compressed,
                     input_data,
                     discrete=False,
-                    m=m # Original code used m=100 here, not the function parameter m
+                    m=m, # Original code used m=100 here, not the function parameter m
+                    slice_y=slice_x_input,
+                    seed=zlib.crc32(f"{layer_name}/xl".encode()) if fixed_projections else None,
                 )
                 print(f"  MI estimate (X, L) for layer {layer_name}: {mi_estimate_xl:.4f}")
              else:
@@ -291,7 +299,8 @@ def calculate_smi(
                     targets_flat,
                     discrete=True,
                     m=m, # Uses the function parameter m
-                    number_of_class=number_of_class
+                    number_of_class=number_of_class,
+                    seed=zlib.crc32(f"{layer_name}/ly".encode()) if fixed_projections else None,
                 )
              else:
                 mi_estimate_ly = 0
